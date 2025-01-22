@@ -14,10 +14,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Features\SuperHeros\Commands\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\SuperHeroAPI.Core\SuperHeroAPI.Core.csproj" />
   </ItemGroup>
 
