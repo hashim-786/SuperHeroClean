@@ -48,32 +48,33 @@ namespace SuperHeroAPI.Web.Controllers
             var result = await _mediator.Send(command);
             return Ok(result);
         }
-
-        [HttpPut]
-        public async Task<IActionResult> UpdateSuperHero(UpdateSuperHeroCommand command)
+        // Fix the Update method to expect id in the URL
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateSuperHero(int id, UpdateSuperHeroCommand command)
         {
             if (command == null) return BadRequest("Invalid data.");
+
+            command.Id = id;  // Ensure the ID is passed to the command
 
             var result = await _mediator.Send(command);
 
             if (result == null) return NotFound("SuperHero not found.");
-
 
             return Ok(result);
         }
-
-        [HttpDelete]
-
-        public async Task<IActionResult> DeleteSuperHero(DeleteSuperHeroCommand command)
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteSuperHero(int id)
         {
-            if (command == null) return BadRequest("Invalid data.");
+            // Construct the command with the id
+            var command = new DeleteSuperHeroCommand { Id = id };
 
+            // Send the command to the mediator
             var result = await _mediator.Send(command);
 
-            if (result == null) return NotFound("SuperHero not found.");
+            if (result == null)
+                return NotFound("SuperHero not found.");
 
             return Ok(result);
-
         }
 
 
