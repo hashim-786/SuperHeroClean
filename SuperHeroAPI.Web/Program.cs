@@ -29,6 +29,8 @@ builder.Services.AddMediatR(typeof(SuperHeroAPI.Application.Features.SuperHeros.
 // Register the repository
 builder.Services.AddScoped<ISuperHeroRepository, SuperHeroRepository>();
 builder.Services.AddScoped<ITokenService, TokenService>(); // Register TokenService
+builder.Services.AddScoped<IPermissionService, PermissionService>(); // Register PermissionService
+builder.Services.AddScoped<IModuleRepository, ModuleRepository>(); // Register ModuleRepository
 
 // Add DbContext for SQL Server
 builder.Services.AddDbContext<DataContext>(options =>
@@ -136,9 +138,11 @@ app.MapControllers();
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
+
     var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
     var userManager = services.GetRequiredService<UserManager<ApplicationUser>>();
-    await SeedData.Initialize(roleManager, userManager);
-}
+    var context = services.GetRequiredService<DataContext>();  // Get the DataContext
 
+    await SeedData.Initialize(roleManager, userManager, context);  // Pass the DataContext to the Initialize method
+}
 app.Run();

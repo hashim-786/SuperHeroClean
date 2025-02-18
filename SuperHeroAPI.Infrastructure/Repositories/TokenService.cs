@@ -27,14 +27,26 @@ namespace SuperHeroAPI.Infrastructure.Services
 
             // 2. Define claims (User info + roles in the token)
             var claims = new List<Claim>
-            {
-                new Claim(JwtRegisteredClaimNames.Sub, user.Id),
-                new Claim(JwtRegisteredClaimNames.Email, user.Email),
-                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
-            };
+    {
+        new Claim(JwtRegisteredClaimNames.Sub, user.Id),
+        new Claim(JwtRegisteredClaimNames.Email, user.Email),
+        new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+    };
 
-            // 3. Add roles as claims
-            claims.AddRange(roles.Select(role => new Claim(ClaimTypes.Role, role)));
+            // 3. Add roles and roleId as claims
+            foreach (var role in roles)
+            {
+                claims.Add(new Claim(ClaimTypes.Role, role));
+
+
+                // Get the roleId from the database (assuming you have a Role entity with Id and Name)
+                var roleEntity = await _userManager.FindByNameAsync(role);
+                Console.WriteLine(roleEntity);
+                if (roleEntity != null)
+                {
+                    claims.Add(new Claim("roleId", roleEntity.Id));  // Add the roleId as a custom claim
+                }
+            }
 
             // 4. Get the secret key from appsettings.json
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));
@@ -59,5 +71,6 @@ namespace SuperHeroAPI.Infrastructure.Services
             // 8. Return the token string
             return tokenHandler.WriteToken(token);
         }
+
     }
 }
